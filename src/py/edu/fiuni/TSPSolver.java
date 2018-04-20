@@ -1,6 +1,9 @@
 package py.edu.fiuni;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -132,27 +135,29 @@ public class TSPSolver {
 	}
 
 	/**
-	 * It is used Nearest neighbor algorithm to initialize the population based
-	 * on settings in config
+	 * Initialize the population based on the settings in the config.
+	 * One vector is built using Nearest neighbor algorithm
+	 * The rest of the population is built randomly
+	 * @return The list of vectors that represents the population
 	 */
 	private List<Vector> initPopulation() {
-		int counter = 0;
 		List<Vector> result = new ArrayList<>();
+		result.add(buildPathWithNNAlgorithm());
+		//result.add(buildPathRandomly());
+		// starts in 1 because the first is for the generated with NNAlgorithm 
+		int counter = 1;
 		while (counter++ < config.getPopSize()) {
-			result.add(buildPathWithNNAlgorithm());
+			result.add(buildPathRandomly());
 		}
 		return result;
 	}
 
 	/**
-	 * 
+	 * Build a vector using nearest neighbor algoritm
 	 * @return
 	 */
 	private Vector buildPathWithNNAlgorithm() {
 		Vector path = new Vector();
-
-		// Used to confirm if a city is already in the path
-		// Set<String> tempSet = new HashSet<>();
 
 		String[] cities = config.getCitiesNames();
 		// pick a random city as the starting point
@@ -167,6 +172,21 @@ public class TSPSolver {
 			currentCity = nearest;
 		}
 
+		return path;
+	}
+	
+	private Vector buildPathRandomly() {
+		Vector path = new Vector();
+
+		String[] cities = config.getCitiesNames();
+		
+		List<String> listOfCities = Arrays.asList(cities);
+		Collections.shuffle(listOfCities);
+		
+		for (String city : listOfCities) {
+			path.addNode(new Node(city));			
+		}
+		
 		return path;
 	}
 
