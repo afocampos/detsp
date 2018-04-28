@@ -25,7 +25,7 @@ public class Vector implements Comparable<Vector> {
 
 	public Vector(Vector v) {
 		for (Node n : v.getTour().values()) {
-			this.addNode(new Node(n.getName()));
+			this.addNode(new Node(n.getName(), n.getLocation()));
 		}
 		this.fitness = v.getFitness();
 	}
@@ -36,7 +36,7 @@ public class Vector implements Comparable<Vector> {
 
 	private void addNodes(List<Node> list) {
 		for (Node n : list) {
-			this.path.put(n.getName(), new Node(n.getName()));
+			this.path.put(n.getName(), new Node(n.getName(), n.getLocation()));
 		}
 	}
 
@@ -88,7 +88,7 @@ public class Vector implements Comparable<Vector> {
 
 		// copy elements before the lower bound
 		for (int i = 0; i < lower; i++) {
-			mutated.addNode(new Node(current.get(i).getName()));
+			mutated.addNode(new Node(current.get(i).getName(), current.get(i).getLocation()));
 		}
 
 		// copy elements between the lower and upper bound in reverse order
@@ -98,7 +98,7 @@ public class Vector implements Comparable<Vector> {
 
 		// copy elements after the upper bound
 		for (int i = upper; i < current.size(); i++) {
-			mutated.addNode(new Node(current.get(i).getName()));
+			mutated.addNode(new Node(current.get(i).getName(), current.get(i).getLocation()));
 		}
 
 		return mutated;
@@ -133,14 +133,14 @@ public class Vector implements Comparable<Vector> {
 
 		// copy elements before the start index
 		for (int i = 0; i < startIndex; i++) {
-			crossed.addNode(new Node(pendingNodes.get(i).getName()));
+			crossed.addNode(new Node(pendingNodes.get(i).getName(), pendingNodes.get(i).getLocation()));
 		}
 
 		crossed.addNodes(subList);
 
 		// add remaining nodes in pending list
 		for (int i = startIndex; i < pendingNodes.size(); i++) {
-			crossed.addNode(new Node(pendingNodes.get(i).getName()));
+			crossed.addNode(new Node(pendingNodes.get(i).getName(), pendingNodes.get(i).getLocation()));
 		}
 		
 		return crossed;

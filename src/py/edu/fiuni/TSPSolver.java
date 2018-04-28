@@ -21,7 +21,7 @@ public class TSPSolver {
 	public TSPSolver(Config config) {
 		this.config = config;
 		this.distancesMap = buildMapFromWeightsMatrix();
-		printDistancesMap(this.distancesMap);
+		//printDistancesMap(this.distancesMap);
 	}
 
 	/**
@@ -29,10 +29,13 @@ public class TSPSolver {
 	 * @return
 	 */
 	public List<Vector> solve() {
-
+		
+		long startTime = System.currentTimeMillis();
+		
 		List<Vector> population = initPopulation();
 		evalPopulation(population);
-		printPopulation(population);
+		// TODO: Make this cofigurable
+		//printPopulation(population);
 
 		/////////////////////////////////////////////
 		//////////////// TESTING ///////////////
@@ -62,7 +65,10 @@ public class TSPSolver {
 			elites.add(getBestFromPopulation(population));
 			t++;
 		}
-
+		
+		long endTime = System.currentTimeMillis();
+		System.out.println("Elpased time: " + (endTime - startTime));
+		
 		//printPopulation(population);
 
 		return population;
@@ -163,12 +169,12 @@ public class TSPSolver {
 		// pick a random city as the starting point
 		int pos = (int) (Math.random() * config.getCitiesNames().length);
 		String currentCity = cities[pos];
-		path.addNode(new Node(currentCity));
+		path.addNode(new Node(currentCity, new int[]{0, 0})); //TODO: AGREGAR VALOR REAL
 		// tempSet.add(cities[pos])
 
 		while (path.getSize() < cities.length) {
 			String nearest = getNearestTo(currentCity, path);
-			path.addNode(new Node(nearest));
+			path.addNode(new Node(nearest, new int[]{0, 0})); //TODO: AGREGAR VALOR REAL
 			currentCity = nearest;
 		}
 
@@ -184,7 +190,7 @@ public class TSPSolver {
 		Collections.shuffle(listOfCities);
 		
 		for (String city : listOfCities) {
-			path.addNode(new Node(city));			
+			path.addNode(new Node(city, new int[]{0, 0}));	//TODO: AGREGAR VALOR REAL		
 		}
 		
 		return path;
