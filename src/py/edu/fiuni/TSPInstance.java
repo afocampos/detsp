@@ -9,14 +9,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * TSPProblem represents a TSPLIB problem instance.
+ * TSPInstance represents a TSPLIB problem instance.
+ * 
+ * Based on the class in: 
  */
 
 public class TSPInstance {
 
-	private String problemName;
-	private String problemComment;
-	private String problemType;
+	private String problemName = null;
+	private String problemComment = null;
+	private String problemType = null;
 
 	private Map<String, Node> nodes = null;
 
@@ -100,36 +102,36 @@ public class TSPInstance {
 			}
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public double[][] getDistancesMatrix(){
+	public double[][] getDistancesMatrix() {
 		double[][] distances = new double[nodes.size()][nodes.size()];
 		int i = 0;
 		int j = 0;
-		for(Node n : nodes.values()){
+		for (Node n : nodes.values()) {
 			j = 0;
-			for(Node other : nodes.values()){
+			for (Node other : nodes.values()) {
 				distances[i][j++] = n.distanceTo(other);
-			}	
+			}
 			i++;
-		}		
+		}
 		return distances;
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public String[] getNodeNames(){
+	public String[] getNodeNames() {
 		String[] names = new String[nodes.size()];
 		int i = 0;
 		for (String s : nodes.keySet()) {
 			names[i++] = s;
 		}
-		return names;		
+		return names;
 	}
 
 	/**

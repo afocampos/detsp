@@ -14,15 +14,31 @@ public class Config {
 	// Crossover probability
 	private double CR = 0.5;
 
+	private TSPInstance problemInstance = null;
 	private String[] names;
 	private double[][] weightMatrix;
+	
+	
+	private int rounds = 1;
+	private long maxRunningTime = 0;
+	
 
-	public Config(int iterations, int popSize, int crSubtourLen, String[] citiesName, double[][] matrix) {
+	/**
+	 * 
+	 * @param iterations
+	 * @param popSize
+	 * @param crSubtourLen
+	 * @param problemInstance
+	 */
+	public Config(int iterations, int popSize, int crSubtourLen, TSPInstance problemInstance, int rounds, long howLong) {
 		this.T = iterations;
 		this.N = popSize;
 		this.crLen = crSubtourLen;
-		this.names = citiesName;
-		this.weightMatrix = matrix;
+		this.problemInstance = problemInstance;
+		this.names = problemInstance.getNodeNames();
+		this.weightMatrix = problemInstance.getDistancesMatrix();	
+		this.rounds = rounds;
+		this.maxRunningTime = howLong;
 	}
 
 	public int getMaxIterNumber() {
@@ -36,6 +52,10 @@ public class Config {
 	public int getCRSubTourLen() {
 		return this.crLen;
 	}
+	
+	public TSPInstance getTSPInstance(){
+		return this.problemInstance;
+	}
 
 	public String[] getCitiesNames() {
 		return this.names;
@@ -44,4 +64,12 @@ public class Config {
 	public double[][] getWeightMatrix() {
 		return this.weightMatrix;
 	}
+
+	public int getRounds() {
+		return rounds;
+	}
+
+	public long getMaxRunningTime() {
+		return maxRunningTime;
+	}	
 }

@@ -6,6 +6,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * 
+ * 
+ * @author Arnaldo
+ *
+ */
 public class FileHandler {
 
 	/**

@@ -1,11 +1,22 @@
 package py.edu.fiuni;
 
+/**
+ * 
+ * @author Arnaldo
+ *
+ */
 public class Node {
+	
 	private String name = null;
 	
 	//The position of the node.
     private final int[] location;
 	
+    /**
+     * 
+     * @param name
+     * @param pos
+     */
 	public Node(String name, int[] pos){
 		this.name = name;
 		this.location = pos;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -15,47 +16,81 @@ import java.util.Map;
  */
 public class Vector implements Comparable<Vector> {
 
-	private LinkedHashMap<String, Node> path = new LinkedHashMap<>();
+	private List<String> path = new ArrayList<>();
 
 	private double fitness = 0;
 
-	public Vector() {
+	/**
+	 * 
+	 */
+	public Vector() { }
 
-	}
-
+	/**
+	 * 
+	 * @param v
+	 */
 	public Vector(Vector v) {
-		for (Node n : v.getTour().values()) {
-			this.addNode(new Node(n.getName(), n.getLocation()));
+		for (String node : v.getTour()) {
+			this.addNode(node);
 		}
 		this.fitness = v.getFitness();
 	}
 
-	public void addNode(Node n) {
-		this.path.put(n.getName(), n);
+	/**
+	 * 
+	 * @param nodeName
+	 */
+	public void addNode(String nodeName) {
+		this.path.add(nodeName);
 	}
 
-	private void addNodes(List<Node> list) {
-		for (Node n : list) {
-			this.path.put(n.getName(), new Node(n.getName(), n.getLocation()));
+	/**
+	 * 
+	 * @param list
+	 */
+	public void addNodes(List<String> list) {
+		for (String node : list) {
+			this.path.add(node);
 		}
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public double getFitness() {
 		return fitness;
 	}
 
-	public Map<String, Node> getTour() {
+	/**
+	 * 
+	 * @return
+	 */
+	public List<String> getTour() {
 		return this.path;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getSize() {
 		return this.path.size();
 	}
 
+	/**
+	 * 
+	 * @param city
+	 * @return
+	 */
 	public boolean containsCity(String city) {
-		return this.path.containsKey(city);
+		return this.path.contains(city);
 	}
 
+	/**
+	 * 
+	 * @param f
+	 */
 	public void setFitness(double f) {
 		this.fitness = f;
 	}
@@ -67,12 +102,13 @@ public class Vector implements Comparable<Vector> {
 	 */
 	public Vector mutate() {
 
-		List<Node> current = new ArrayList<>(this.path.values());
+		// TODO: Try to use the instance of perform a copy
+		List<String> current = new ArrayList<>(this.path); 
 
 		Vector mutated = new Vector();
 
-		int p1Index = /* 1 + */(int) (Math.random() * (current.size() - 1));
-		int p2Index = /* 1 + */(int) (Math.random() * (current.size() - 1));
+		int p1Index = /*1 +*/ (int) (Math.random() * (current.size() - 1));
+		int p2Index = /*1 + */(int) (Math.random() * (current.size() - 1));
 
 		int lower = 0;
 		int upper = 0;
@@ -88,17 +124,17 @@ public class Vector implements Comparable<Vector> {
 
 		// copy elements before the lower bound
 		for (int i = 0; i < lower; i++) {
-			mutated.addNode(new Node(current.get(i).getName(), current.get(i).getLocation()));
+			mutated.addNode(current.get(i));
 		}
 
 		// copy elements between the lower and upper bound in reverse order
-		List<Node> subListtoInvert = current.subList(lower, upper);
+		List<String> subListtoInvert = current.subList(lower, upper);
 		Collections.reverse(subListtoInvert);
 		mutated.addNodes(subListtoInvert);
 
 		// copy elements after the upper bound
 		for (int i = upper; i < current.size(); i++) {
-			mutated.addNode(new Node(current.get(i).getName(), current.get(i).getLocation()));
+			mutated.addNode(current.get(i));
 		}
 
 		return mutated;
@@ -112,52 +148,56 @@ public class Vector implements Comparable<Vector> {
 	 * @return the crossed population
 	 */
 	public Vector crossover(Vector mutated, int subTourLen) {
-		List<Node> originalPath = new ArrayList<>(this.path.values());
-		List<Node> mutatedPath = new ArrayList<>(mutated.path.values());
+		
+		// TODO: Try to use the instance of perform a copy
+		List<String> originalPath = new ArrayList<>(this.path);
+		List<String> mutatedPath = new ArrayList<>(mutated.path);
 
 		Vector crossed = new Vector();
 
 		int startIndex = (int) (Math.random() * (originalPath.size() - 1 - subTourLen));
 
-		//System.out.println("Start Index: " + startIndex + " 	SubTour len: " + subTourLen);
+		// System.out.println("Start Index: " + startIndex + " SubTour len: " + subTourLen);
 
 		// take subTourLen elements starting at startIndex
-		List<Node> subList = originalPath.subList(startIndex, startIndex + subTourLen);
-		List<Node> pendingNodes = new ArrayList<>();
+		List<String> subList = originalPath.subList(startIndex, startIndex + subTourLen);
+		List<String> pendingNodes = new ArrayList<>();
 
-		for (Node n : mutatedPath) {
-			if (!subList.contains(n)){
+		for (String n : mutatedPath) {
+			if (!subList.contains(n)) {
 				pendingNodes.add(n);
 			}
 		}
 
 		// copy elements before the start index
 		for (int i = 0; i < startIndex; i++) {
-			crossed.addNode(new Node(pendingNodes.get(i).getName(), pendingNodes.get(i).getLocation()));
+			crossed.addNode(pendingNodes.get(i));
 		}
 
 		crossed.addNodes(subList);
 
 		// add remaining nodes in pending list
 		for (int i = startIndex; i < pendingNodes.size(); i++) {
-			crossed.addNode(new Node(pendingNodes.get(i).getName(), pendingNodes.get(i).getLocation()));
+			crossed.addNode(pendingNodes.get(i));
 		}
-		
+
 		return crossed;
 	}
 
 	/**
-	 * The fitness of the vector is given by the sum of the distances of the entire path
+	 * The fitness of the vector is given by the sum of the distances of the
+	 * entire path
+	 * 
 	 * @param config
 	 * @param map
 	 * @return
 	 */
 	public double calculateFitness(Config config, HashMap<String, List<Edge>> map) {
-		List<Node> nodes = new ArrayList<Node>(this.path.values());
+		List<String> nodes = new ArrayList<>(this.path);
 		double fit = 0;
 		for (int i = 0; i < nodes.size(); i++) {
-			Node n1 = nodes.get(i);
-			Node n2 = i == nodes.size() - 1 ? nodes.get(0) : nodes.get(i + 1);
+			String n1 = nodes.get(i);
+			String n2 = i == nodes.size() - 1 ? nodes.get(0) : nodes.get(i + 1);
 			fit += getDistanceBetween(n1, n2, config, map);
 		}
 		return fit;
@@ -165,18 +205,17 @@ public class Vector implements Comparable<Vector> {
 
 	@Override
 	public String toString() {
-		String result = "Path: ";
-		for (String city : path.keySet()) {
-			result += city + " -> ";
-		}
+		
+		String result = "Fit:" + this.fitness + " Tour: " + String.join(" - ", path);
+				
 		if (!path.isEmpty()) {
-			result += new ArrayList<>(path.values()).get(0).getName(); // ((Node)(path.values().toArray()[0])).getName();
-		}
-		result += "\tFit:" + this.fitness;
+			result += path.get(0);
+		}		
 
 		return result;
 	}
 
+	
 	@Override
 	public int compareTo(Vector v) {
 		if (this.fitness < v.fitness)
@@ -187,10 +226,18 @@ public class Vector implements Comparable<Vector> {
 			return 0;
 	}
 
-	private double getDistanceBetween(Node n1, Node n2, Config config, HashMap<String, List<Edge>> map) {
-		List<Edge> distances = map.get(n1.getName());
+	/**
+	 * 
+	 * @param n1
+	 * @param n2
+	 * @param config
+	 * @param map
+	 * @return
+	 */
+	private double getDistanceBetween(String n1, String n2, Config config, HashMap<String, List<Edge>> map) {
+		List<Edge> distances = map.get(n1);
 		for (Edge e : distances) {
-			if (e.getTo().equals(n2.getName()))
+			if (e.getTo().equals(n2))
 				return e.getDistance();
 		}
 		return Double.MAX_VALUE;

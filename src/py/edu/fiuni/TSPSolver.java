@@ -28,9 +28,10 @@ public class TSPSolver {
 	 * 
 	 * @return
 	 */
-	public List<Vector> solve() {
+	public List<Vector> solve(StringBuilder buffer) {
 		
 		long startTime = System.currentTimeMillis();
+		long endTime = startTime + (config.getMaxRunningTime()*1000);
 		
 		List<Vector> population = initPopulation();
 		evalPopulation(population);
@@ -49,7 +50,8 @@ public class TSPSolver {
 		/////////////////////////////////////////////
 
 		int t = 0;
-		while (t < this.config.getMaxIterNumber()) {
+		long currentTime;
+		do {
 
 			List<Vector> mutatedPopulation = mutate(population);
 			evalPopulation(mutatedPopulation);
@@ -61,19 +63,66 @@ public class TSPSolver {
 			evalPopulation(selectedPopulation);
 
 			population = selectedPopulation;
+			
 			// pick the best path in the population
 			elites.add(getBestFromPopulation(population));
+			
 			t++;
-		}
-		
-		long endTime = System.currentTimeMillis();
-		System.out.println("Elpased time: " + (endTime - startTime));
+			
+			currentTime = System.currentTimeMillis();
+			
+		}while ( currentTime < endTime /*t < this.config.getMaxIterNumber()*/);
+				
+		System.out.println("Elapsed time: " + (System.currentTimeMillis() - startTime) + " Generations: " + t);
 		
 		//printPopulation(population);
 
 		return population;
 	}
+	
+	/**
+	 * 
+	 * @param pop
+	 */
+	public void printPopulation(List<Vector> pop) {		
+		System.out.println("Population: ");
+		for (Vector v : pop) {
+			System.out.println(v.toString());
+		}
+	}
 
+	/**
+	 * 
+	 * @param population
+	 * @return
+	 */
+	public Vector getBestFromPopulation(List<Vector> population) {
+		java.util.Collections.sort(population);
+		return population.get(0);
+	}
+
+	public void printEliteHistory() {
+		System.out.println("Elites: ");
+		for (Vector v : elites) {
+			System.out.print(v.getFitness() + ",  ");
+		}
+		//System.out.println("\n");
+	}
+	
+	/**
+	 * 
+	 * @param solution
+	 */
+	public void showGraphicsFor(Vector solution) {
+		SolutionViewer viewer = new SolutionViewer(solution, config);
+		viewer.setVisible(true);
+	}
+	
+	/**
+	 * 
+	 * @param population
+	 * @return
+	 */
 	private List<Vector> mutate(List<Vector> population) {
 		List<Vector> mutated = new ArrayList<>();
 		for (Vector v : population) {
@@ -82,6 +131,12 @@ public class TSPSolver {
 		return mutated;
 	}
 
+	/**
+	 * 
+	 * @param population
+	 * @param mutatedPopulation
+	 * @return
+	 */
 	private List<Vector> crossover(List<Vector> population, List<Vector> mutatedPopulation) {
 		List<Vector> crossed = new ArrayList<>();
 		
@@ -129,16 +184,7 @@ public class TSPSolver {
 		for (Vector v : p) {
 			v.setFitness(v.calculateFitness(this.config, this.distancesMap));
 		}
-	}
-
-	/**
-	 * 
-	 * @param solution
-	 */
-	public void showGraphicsFor(Vector solution) {
-		SolutionViewer viewer = new SolutionViewer(solution, config);
-		viewer.setVisible(true);
-	}
+	}	
 
 	/**
 	 * Initialize the population based on the settings in the config.
@@ -148,6 +194,7 @@ public class TSPSolver {
 	 */
 	private List<Vector> initPopulation() {
 		List<Vector> result = new ArrayList<>();
+		//
 		result.add(buildPathWithNNAlgorithm());
 		//result.add(buildPathRandomly());
 		// starts in 1 because the first is for the generated with NNAlgorithm 
@@ -166,15 +213,15 @@ public class TSPSolver {
 		Vector path = new Vector();
 
 		String[] cities = config.getCitiesNames();
+		
 		// pick a random city as the starting point
 		int pos = (int) (Math.random() * config.getCitiesNames().length);
 		String currentCity = cities[pos];
-		path.addNode(new Node(currentCity, new int[]{0, 0})); //TODO: AGREGAR VALOR REAL
-		// tempSet.add(cities[pos])
+		path.addNode(currentCity);
 
 		while (path.getSize() < cities.length) {
 			String nearest = getNearestTo(currentCity, path);
-			path.addNode(new Node(nearest, new int[]{0, 0})); //TODO: AGREGAR VALOR REAL
+			path.addNode(nearest);
 			currentCity = nearest;
 		}
 
@@ -183,15 +230,10 @@ public class TSPSolver {
 	
 	private Vector buildPathRandomly() {
 		Vector path = new Vector();
-
-		String[] cities = config.getCitiesNames();
-		
-		List<String> listOfCities = Arrays.asList(cities);
+	
+		List<String> listOfCities = Arrays.asList(config.getCitiesNames());
 		Collections.shuffle(listOfCities);
-		
-		for (String city : listOfCities) {
-			path.addNode(new Node(city, new int[]{0, 0}));	//TODO: AGREGAR VALOR REAL		
-		}
+		path.addNodes(listOfCities);
 		
 		return path;
 	}
@@ -250,37 +292,5 @@ public class TSPSolver {
 			}
 			System.out.println();
 		}
-	}
-
-	/**
-	 * 
-	 * @param pop
-	 */
-	public void printPopulation(List<Vector> pop) {
-		//System.out.println("\n");
-		System.out.println("Population:::>>");
-		for (Vector v : pop) {
-			System.out.println(v.toString());
-		}
-		//System.out.println("\n");
-	}
-
-	/**
-	 * 
-	 * @param population
-	 * @return
-	 */
-	public Vector getBestFromPopulation(List<Vector> population) {
-		java.util.Collections.sort(population);
-		return population.get(0);
-	}
-
-	public void printEliteHistory() {
-		//System.out.println("\n");
-		System.out.println("Elites:::>>");
-		for (Vector v : elites) {
-			System.out.print(v.getFitness() + ",  ");
-		}
-		//System.out.println("\n");
 	}
 }
